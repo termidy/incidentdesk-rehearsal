@@ -8,7 +8,7 @@ mcp-servers:
     command: python3
     args: ["mcp/incidentdesk_mcp.py"]
     env:
-      INCIDENTDESK_API_KEY: ${{ secrets.INCIDENTDESK_KEY }}
+      INCIDENTDESK_API_KEY: ${{ secrets.COPILOT_MCP_INCIDENTDESK_KEY }}
     tools: ["*"]
 ---
 
