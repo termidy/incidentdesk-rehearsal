@@ -1,20 +1,18 @@
 """The daily report: incidents of one calendar day in the service time zone."""
 
 from collections import Counter
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 
-import pytz
-
-from incidentdesk.config import settings
 from incidentdesk.models import Incident
+from incidentdesk.timeutil import local_datetime
 
 
 def day_bounds(day: date) -> tuple[datetime, datetime]:
     """Start and end of a local calendar day, in UTC. A daylight saving day is 23 or 25 hours long."""
-    tz = pytz.timezone(settings().timezone)
-    start = tz.localize(datetime.combine(day, datetime.min.time()))
-    end = tz.localize(datetime.combine(day + timedelta(days=1), datetime.min.time()))
-    return start.astimezone(pytz.utc), end.astimezone(pytz.utc)
+    start = local_datetime(day.year, day.month, day.day)
+    next_day = day + timedelta(days=1)
+    end = local_datetime(next_day.year, next_day.month, next_day.day)
+    return start.astimezone(timezone.utc), end.astimezone(timezone.utc)
 
 
 def daily_report(incidents: list[Incident], day: date) -> dict:
