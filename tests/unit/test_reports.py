@@ -1,7 +1,6 @@
-from datetime import date, timedelta
+from datetime import date, timedelta, timezone
 
-import pytz
-
+from incidentdesk.config import settings
 from incidentdesk.reports.daily import daily_report, day_bounds
 from incidentdesk.reports.mttr import mttr_by_service
 from incidentdesk.reports.weekly import weekly_report
@@ -11,7 +10,20 @@ from tests.conftest import chicago, make_incident
 def test_a_local_day_is_25_hours_when_clocks_go_back():
     start, end = day_bounds(date(2026, 11, 1))
     assert end - start == timedelta(hours=25)
-    assert start.tzinfo == pytz.utc
+    assert start.tzinfo == timezone.utc
+
+
+def test_a_local_day_is_23_hours_when_clocks_go_forward():
+    start, end = day_bounds(date(2026, 3, 8))
+    assert end - start == timedelta(hours=23)
+    assert start.tzinfo == timezone.utc
+
+
+def test_day_bounds_preserve_ambiguous_midnight(monkeypatch):
+    monkeypatch.setenv("INCIDENTDESK_TIMEZONE", "America/Havana")
+    settings.cache_clear()
+    start, _ = day_bounds(date(2026, 11, 1))
+    assert start.hour == 5
 
 
 def test_daily_report_counts_by_local_day():
@@ -24,6 +36,7 @@ def test_daily_report_counts_by_local_day():
 def test_weekly_report_runs_monday_to_sunday():
     report = weekly_report([make_incident(opened_at=chicago(2026, 10, 18, 22, 0))], date(2026, 10, 14))
     assert report["week"] == "2026-10-12..2026-10-18" and report["opened"] == 1
+    assert report["timezone"] == "America/Chicago"
 
 
 def test_mttr_leaves_out_waiting_time():

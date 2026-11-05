@@ -13,6 +13,14 @@ def test_customer_facing_is_raised_one_level_during_the_day():
     assert compute_priority("major", True, chicago(2026, 10, 13, 14, 0)) == "P1"
 
 
+def test_customer_facing_is_raised_one_level_at_night():
+    assert compute_priority("major", True, chicago(2026, 10, 13, 23, 30)) == "P1"
+
+
+def test_customer_facing_is_raised_one_level_on_the_weekend():
+    assert compute_priority("major", True, chicago(2026, 10, 17, 10, 0)) == "P1"
+
+
 def test_p1_stays_p1():
     assert compute_priority("critical", True, chicago(2026, 10, 13, 14, 0)) == "P1"
 
@@ -20,6 +28,10 @@ def test_p1_stays_p1():
 def test_maintenance_lowers_one_level():
     assert compute_priority("minor", False, chicago(2026, 10, 13, 14, 0), in_maintenance=True) == "P4"
     assert compute_priority("cosmetic", False, chicago(2026, 10, 13, 14, 0), in_maintenance=True) == "P4"
+
+
+def test_maintenance_lowers_critical_customer_facing_incident_after_p1_clamp():
+    assert compute_priority("critical", True, chicago(2026, 10, 13, 14, 0), in_maintenance=True) == "P2"
 
 
 def test_time_is_compared_in_the_service_time_zone():
