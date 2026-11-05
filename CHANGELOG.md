@@ -4,6 +4,7 @@ What changed for the people who use IncidentDesk: on-call engineers, support and
 
 ## Unreleased
 
+- Postmortems can be exported as Markdown for sharing in the wiki.
 - Customer-facing incidents are raised one priority level at any hour.
 
 ## 1.4.0
