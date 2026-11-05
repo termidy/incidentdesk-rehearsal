@@ -27,7 +27,7 @@ jobs:
           gh run view $RUN_ID --log-failed and the code it points to.
           In at most 120 words say which test failed, why, and the smallest fix.
           Do not change any file."
-          --allow-tool='shell(gh run view:*)' > explanation.md
+          --allow-tool='shell(gh run view:*)' | tee explanation.md
         env:
           GITHUB_TOKEN: ${{ github.token }}
           RUN_ID: ${{ github.event.workflow_run.id }}
