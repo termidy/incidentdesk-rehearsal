@@ -2,7 +2,6 @@
 
 from datetime import datetime
 
-import pytz
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -33,7 +32,7 @@ def find(session: Session, key: str) -> Incident:
 
 
 def _utc(value: datetime) -> datetime:
-    return pytz.utc.localize(value) if value.tzinfo is None else value.astimezone(pytz.utc)
+    return value.replace(tzinfo=timezone.utc) if value.tzinfo is None else value.astimezone(timezone.utc)
 
 
 @router.get("", response_model=list[IncidentOut])

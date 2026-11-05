@@ -2,7 +2,6 @@
 
 from datetime import datetime
 
-import pytz
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
@@ -17,6 +16,6 @@ router = APIRouter(prefix="/incidents", tags=["timeline"])
 def timeline(key: str, since: datetime | None = None, session: Session = Depends(get_session)):
     events = find(session, key).events
     if since:
-        since = pytz.utc.localize(since) if since.tzinfo is None else since
+        since = since.replace(tzinfo=timezone.utc) if since.tzinfo is None else since
         events = [e for e in events if e.at >= since]
     return events

@@ -1,1 +1,2 @@
 - For ambiguous and nonexistent local wall times, preserve pytz's `is_dst=False` result with zone-specific fold choices for Ireland and Morocco overlaps and Moldova gaps; fold round-trips distinguish overlaps from gaps, while the named zones are exceptions to the usual fold choice.
+- Use the shared wall-time localization helper for ingest, maintenance, and on-call dates; add maintenance durations in UTC so spring DST windows retain the legacy elapsed interval.

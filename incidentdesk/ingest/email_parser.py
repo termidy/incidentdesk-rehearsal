@@ -7,21 +7,21 @@ Customers write the time the way they see it. The support form adds a `Reported-
 from datetime import datetime
 from email.message import Message
 from email.utils import parsedate_to_datetime
-
-import pytz
+from zoneinfo import ZoneInfo
 
 from incidentdesk.config import settings
 from incidentdesk.ingest.webhook import Draft
+from incidentdesk.timeutil import UTC, _localize
 
 KEYWORDS = {"down": "critical", "outage": "critical", "error": "major", "slow": "minor"}
 
 
 def reported_at(msg: Message) -> datetime:
     if msg.get("Reported-Time"):
-        tz = pytz.timezone(msg.get("Reported-TZ") or settings().timezone)
+        tz = ZoneInfo(msg.get("Reported-TZ") or settings().timezone)
         naive = datetime.strptime(msg["Reported-Time"], "%Y-%m-%d %H:%M")
-        return tz.localize(naive).astimezone(pytz.utc)
-    return parsedate_to_datetime(msg["Date"]).astimezone(pytz.utc)
+        return _localize(naive, tz).astimezone(UTC)
+    return parsedate_to_datetime(msg["Date"]).astimezone(UTC)
 
 
 def guess_severity(subject: str) -> str:

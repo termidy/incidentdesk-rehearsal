@@ -4,12 +4,12 @@ One-off windows are stored in the database. Every service also has a weekly wind
 service time zone (Sunday 02:00-04:00), so it moves with daylight saving time.
 """
 
-from datetime import datetime, time, timedelta
-
-import pytz
+from datetime import datetime, time, timedelta, timezone
+from zoneinfo import ZoneInfo
 
 from incidentdesk.config import settings
 from incidentdesk.models import MaintenanceWindow
+from incidentdesk.timeutil import _localize
 
 WEEKLY_DAY = 6  # Sunday
 WEEKLY_START = time(2, 0)
@@ -18,13 +18,14 @@ WEEKLY_HOURS = 2
 
 def weekly_window(at: datetime) -> tuple[datetime, datetime]:
     """The weekly window of the week that contains `at`."""
-    tz = pytz.timezone(settings().timezone)
+    tz = ZoneInfo(settings().timezone)
     local = at.astimezone(tz)
     sunday = local.date() + timedelta(days=(WEEKLY_DAY - local.weekday()) % 7)
     if sunday > local.date():
         sunday -= timedelta(days=7)
-    start = tz.localize(datetime.combine(sunday, WEEKLY_START))
-    return start, start + timedelta(hours=WEEKLY_HOURS)
+    start = _localize(datetime.combine(sunday, WEEKLY_START), tz)
+    end = (start.astimezone(timezone.utc) + timedelta(hours=WEEKLY_HOURS)).astimezone(tz)
+    return start, end
 
 
 def in_maintenance(service_id: int, at: datetime, windows: list[MaintenanceWindow]) -> bool:
