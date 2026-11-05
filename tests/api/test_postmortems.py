@@ -33,12 +33,18 @@ def test_export_postmortem_as_markdown(client):
     assert response.status_code == 200
     assert response.headers["content-type"].startswith("text/markdown")
     markdown = response.text
-    assert markdown.startswith("# Billing service is down\n\n**Incident:** INC-4708\n")
+    assert markdown.startswith(
+        "# PM-101: Billing service is down\n\n"
+        "> Incident INC-4708 · Severity critical · Published 2026-08-17\n"
+    )
     assert markdown.index("## Summary") < markdown.index("## Impact")
     assert markdown.index("## Impact") < markdown.index("## Root cause")
     assert markdown.index("## Root cause") < markdown.index("## Actions")
     assert "Billing Service is down for 81 minutes." in markdown
-    assert "- [ ] Automate certificate rotation checks\n- [ ] Move reports to the read replica" in markdown
+    assert (
+        "- [ ] Automate certificate rotation checks (owner: payments)\n"
+        "- [ ] Move reports to the read replica (owner: payments)"
+    ) in markdown
 
 
 def test_export_postmortem_requires_root_cause(client):
