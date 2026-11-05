@@ -1,6 +1,6 @@
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
-import pytz
 import pytest
 
 from incidentdesk.oncall.handoff import handoff_note
@@ -16,14 +16,14 @@ def test_handoff_happens_monday_at_ten_local():
 
 
 def test_each_rotation_uses_its_own_time_zone():
-    lisbon = pytz.timezone("Europe/Lisbon")
-    at = lisbon.localize(datetime(2026, 10, 12, 10, 30))
-    assert on_call("emea", at) != on_call("emea", lisbon.localize(datetime(2026, 10, 12, 9, 30)))
+    lisbon = ZoneInfo("Europe/Lisbon")
+    at = datetime(2026, 10, 12, 10, 30, tzinfo=lisbon)
+    assert on_call("emea", at) != on_call("emea", datetime(2026, 10, 12, 9, 30, tzinfo=lisbon))
 
 
 def test_shift_table_keeps_ten_oclock_across_daylight_saving():
     table = shifts("amer", chicago(2026, 10, 27, 12, 0), weeks=2)
-    tz = pytz.timezone("America/Chicago")
+    tz = ZoneInfo("America/Chicago")
     assert [s.starts_at.astimezone(tz).hour for s in table] == [10, 10]
     assert table[0].ends_at == table[1].starts_at
 
@@ -54,14 +54,14 @@ def test_handoff_note_sorts_by_priority_then_opened_at():
     ("at", "opened_at", "expected"),
     [
         (
-            pytz.utc.localize(datetime(2026, 10, 31, 16, 0)),
-            pytz.utc.localize(datetime(2026, 10, 31, 14, 15)),
+            datetime(2026, 10, 31, 16, 0, tzinfo=ZoneInfo("UTC")),
+            datetime(2026, 10, 31, 14, 15, tzinfo=ZoneInfo("UTC")),
             "Handoff amer - Sat 31 Oct 11:00 CDT\n"
             "- INC-4821 P2 Login fails for some customers (open since Sat 09:15)",
         ),
         (
-            pytz.utc.localize(datetime(2026, 11, 2, 16, 0)),
-            pytz.utc.localize(datetime(2026, 11, 2, 15, 30)),
+            datetime(2026, 11, 2, 16, 0, tzinfo=ZoneInfo("UTC")),
+            datetime(2026, 11, 2, 15, 30, tzinfo=ZoneInfo("UTC")),
             "Handoff amer - Mon 02 Nov 10:00 CST\n"
             "- INC-4821 P2 Login fails for some customers (open since Mon 09:30)",
         ),
