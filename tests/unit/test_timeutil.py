@@ -26,6 +26,24 @@ def test_local_datetime_handles_daylight_saving():
     assert after.utcoffset().total_seconds() == -6 * 3600
 
 
+def test_to_local_handles_spring_forward():
+    chicago = pytz.timezone("America/Chicago")
+    before = pytz.utc.localize(datetime(2026, 3, 8, 7, 59))
+    after = pytz.utc.localize(datetime(2026, 3, 8, 8, 0))
+
+    assert timeutil.to_local(before) == chicago.localize(datetime(2026, 3, 8, 1, 59), is_dst=False)
+    assert timeutil.to_local(after) == chicago.localize(datetime(2026, 3, 8, 3, 0), is_dst=True)
+
+
+def test_to_local_handles_fall_back():
+    chicago = pytz.timezone("America/Chicago")
+    daylight_time = pytz.utc.localize(datetime(2026, 11, 1, 6, 30))
+    standard_time = pytz.utc.localize(datetime(2026, 11, 1, 7, 30))
+
+    assert timeutil.to_local(daylight_time) == chicago.localize(datetime(2026, 11, 1, 1, 30), is_dst=True)
+    assert timeutil.to_local(standard_time) == chicago.localize(datetime(2026, 11, 1, 1, 30), is_dst=False)
+
+
 def test_business_hours():
     assert timeutil.is_business_hours(timeutil.local_datetime(2026, 10, 13, 9, 0))
     assert not timeutil.is_business_hours(timeutil.local_datetime(2026, 10, 13, 18, 0))
