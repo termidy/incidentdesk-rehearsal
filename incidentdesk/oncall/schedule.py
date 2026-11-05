@@ -2,8 +2,9 @@
 
 from dataclasses import dataclass
 from datetime import date, datetime, time, timedelta
+from zoneinfo import ZoneInfo
 
-import pytz
+from incidentdesk.timeutil import _localize
 
 
 @dataclass(frozen=True)
@@ -25,12 +26,12 @@ HANDOFF_TIME = time(10, 0)
 
 def handoff_before(rotation: Rotation, at: datetime) -> datetime:
     """The last handoff of this rotation at or before `at`."""
-    tz = pytz.timezone(rotation.timezone)
+    tz = ZoneInfo(rotation.timezone)
     local = at.astimezone(tz)
     monday = local.date() - timedelta(days=local.weekday())
-    handoff = tz.localize(datetime.combine(monday, HANDOFF_TIME))
+    handoff = _localize(datetime.combine(monday, HANDOFF_TIME), tz)
     if handoff > local:
-        handoff = tz.localize(datetime.combine(monday - timedelta(days=7), HANDOFF_TIME))
+        handoff = _localize(datetime.combine(monday - timedelta(days=7), HANDOFF_TIME), tz)
     return handoff
 
 

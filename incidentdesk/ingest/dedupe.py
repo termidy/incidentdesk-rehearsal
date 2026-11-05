@@ -2,8 +2,7 @@
 within ten minutes of the first one are duplicates."""
 
 from datetime import timedelta
-
-import pytz
+from datetime import timezone
 
 from incidentdesk.ingest.webhook import Draft
 
@@ -14,7 +13,7 @@ def dedupe(drafts: list[Draft]) -> tuple[list[Draft], list[Draft]]:
     """(kept, duplicates), in time order."""
     kept: list[Draft] = []
     duplicates: list[Draft] = []
-    for draft in sorted(drafts, key=lambda d: d.opened_at.astimezone(pytz.utc)):
+    for draft in sorted(drafts, key=lambda d: d.opened_at.astimezone(timezone.utc)):
         first = next(
             (k for k in kept
              if k.service_slug == draft.service_slug
