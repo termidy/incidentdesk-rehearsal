@@ -13,4 +13,4 @@ You write tests. You never change the application code.
 - The SLA rules are in `docs/sla.md`: a target is met when the incident is acknowledged or resolved at or before its due time.
 - Install only what the project already lists: `pip install -e ".[dev]"`. Never add a package.
 - Run the new tests, then the whole suite, before you open the pull request.
-- End the pull request description with a handoff note: link the plan, and list each success criterion with the test that proves it.
+- End the pull request description with a handoff note: link the plan, and name each test (`test_...`) with the success criterion it proves.
