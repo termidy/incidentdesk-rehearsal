@@ -79,7 +79,7 @@ def first_sentence(text, limit=150):
 
 def handoff(body, issue):
     """The implementer profile's note: the plan linked, each criterion with its test."""
-    body = (body or "").split("<!-- START COPILOT CODING AGENT SUFFIX -->")[0]
+    body = body or ""
     plan = f"docs/plans/{issue}.md" in body
     tests = sorted(set(re.findall(r"\btest_\w+", body)))
     return {"plan_linked": plan, "tests_named": tests, "present": plan and bool(tests)}
