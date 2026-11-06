@@ -30,6 +30,33 @@ def add_incident(db, service, key, opened_at, status="open"):
     db.commit()
 
 
+def test_mobile_incidents_match_list_contract_example(client, db, login):
+    opened_at = datetime(2026, 10, 13, 19, 0, tzinfo=timezone.utc)
+    add_incident(db, login, "INC-4821", opened_at, "acknowledged")
+    for index in range(1, 21):
+        add_incident(
+            db,
+            login,
+            f"INC-{index + 4821}",
+            opened_at - timedelta(minutes=index),
+        )
+
+    response = client.get("/mobile/v1/incidents")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert set(body) == {"items", "next_page"}
+    assert body["items"][0] == {
+        "key": "INC-4821",
+        "title": "Login fails for some customers",
+        "service": "login-service",
+        "priority": "P1",
+        "status": "acknowledged",
+        "opened_at": "2026-10-13T19:00:00Z",
+    }
+    assert body["next_page"] == 2
+
+
 def test_mobile_incidents_include_fields_and_exclude_resolved(client, db, login):
     opened_at = datetime(2026, 10, 13, 19, 0, tzinfo=timezone.utc)
     add_incident(db, login, "INC-4821", opened_at, "acknowledged")
