@@ -35,7 +35,7 @@ def test_title_longer_than_200_characters_is_refused_without_creating_an_inciden
 
 def test_200_character_title_is_accepted(client, login):
     title = "x" * 200
-    r = client.post("/incidents", json={"service": "login-service", "title": title, "severity": "major"})
+    r = client.post("/incidents", json={"service": "login-service", "title": f"  {title}  ", "severity": "major"})
     assert r.status_code == 201
     assert r.json()["title"] == title
 
