@@ -4,6 +4,7 @@ What changed for the people who use IncidentDesk: on-call engineers, support and
 
 ## Unreleased
 
+- The mobile API lists open incidents newest first, 20 per page.
 - Postmortems can be exported as Markdown for sharing in the wiki.
 - Customer-facing incidents are raised one priority level at any hour.
 - The mobile app can open one incident with its timeline, oldest event first (`GET /mobile/v1/incidents/{key}`).
