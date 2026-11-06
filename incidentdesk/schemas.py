@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 Severity = Literal["critical", "major", "minor", "cosmetic"]
 
@@ -20,7 +20,7 @@ class ServiceOut(BaseModel):
 
 class IncidentIn(BaseModel):
     service: str
-    title: str
+    title: str = Field(min_length=1, max_length=200, strip_whitespace=True)
     severity: Severity
     opened_at: datetime | None = None
 

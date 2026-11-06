@@ -4,6 +4,7 @@ What changed for the people who use IncidentDesk: on-call engineers, support and
 
 ## Unreleased
 
+- Incident titles must contain 1–200 characters after surrounding spaces are removed.
 - The mobile API lists open incidents newest first, 20 per page.
 - Postmortems can be exported as Markdown for sharing in the wiki.
 - Customer-facing incidents are raised one priority level at any hour.
