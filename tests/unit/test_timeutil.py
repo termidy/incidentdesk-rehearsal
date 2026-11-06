@@ -1,6 +1,13 @@
 from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 
 from incidentdesk import timeutil
+
+
+def test_to_local_converts_midnight_utc_to_previous_local_date():
+    utc_midnight = datetime(2026, 1, 1, 0, 0, tzinfo=timezone.utc)
+    expected = datetime(2025, 12, 31, 18, 0, tzinfo=ZoneInfo("America/Chicago"))
+    assert timeutil.to_local(utc_midnight) == expected
 
 
 def test_parse_utc_reads_z_and_offsets():
