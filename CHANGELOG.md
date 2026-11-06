@@ -4,6 +4,7 @@ What changed for the people who use IncidentDesk: on-call engineers, support and
 
 ## Unreleased
 
+- Engineers can subscribe to service alerts from the mobile API.
 - Postmortems can be exported as Markdown for sharing in the wiki.
 - Customer-facing incidents are raised one priority level at any hour.
 
