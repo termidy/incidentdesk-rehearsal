@@ -14,11 +14,30 @@ def login(db):
 
 
 def test_open_an_incident_during_the_day(client, login):
-    r = client.post("/incidents", json={"service": "login-service", "title": " Login fails ", "severity": "major",
+    r = client.post("/incidents", json={"service": "login-service", "title": "  Login fails  ", "severity": "major",
                                         "opened_at": "2026-10-13T19:00:00Z"})
     assert r.status_code == 201
     body = r.json()
     assert body["key"] == "INC-4801" and body["priority"] == "P1" and body["title"] == "Login fails"
+
+
+def test_whitespace_only_title_is_refused_without_creating_an_incident(client, login):
+    r = client.post("/incidents", json={"service": "login-service", "title": "   ", "severity": "major"})
+    assert r.status_code == 422
+    assert client.get("/incidents").json() == []
+
+
+def test_title_longer_than_200_characters_is_refused_without_creating_an_incident(client, login):
+    r = client.post("/incidents", json={"service": "login-service", "title": "x" * 201, "severity": "major"})
+    assert r.status_code == 422
+    assert client.get("/incidents").json() == []
+
+
+def test_200_character_title_is_accepted(client, login):
+    title = "x" * 200
+    r = client.post("/incidents", json={"service": "login-service", "title": f"  {title}  ", "severity": "major"})
+    assert r.status_code == 201
+    assert r.json()["title"] == title
 
 
 def test_unknown_service_is_refused(client, login):
