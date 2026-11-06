@@ -3,7 +3,7 @@
 from fastapi import FastAPI
 
 from incidentdesk import __version__
-from incidentdesk.api import incidents, mobile_subscriptions, postmortems, services, timeline
+from incidentdesk.api import incidents, mobile_incident_list, mobile_subscriptions, postmortems, services, timeline
 
 
 def create_app() -> FastAPI:
@@ -13,6 +13,7 @@ def create_app() -> FastAPI:
     app.include_router(timeline.router)
     app.include_router(postmortems.router)
     app.include_router(mobile_subscriptions.router)
+    app.include_router(mobile_incident_list.router)
     return app
 
 
