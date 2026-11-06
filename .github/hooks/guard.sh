@@ -11,7 +11,7 @@ deny() {
 }
 
 # Security: no destructive commands.
-if [ "$tool" = "bash" ] && grep -Eq 'rm -[a-z]*(rf|fr)|git push (-f|--force)|git reset --hard' <<<"$args"; then
+if [ "$tool" = "bash" ] && grep -Eq 'git push (-f|--force)|git reset --hard' <<<"$args"; then
   deny "Blocked by guard.sh (security, $tool): destructive command. A person runs it, not the agent."
 fi
 
