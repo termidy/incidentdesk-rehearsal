@@ -52,6 +52,16 @@ def closing_pr(number):
     return (merged or [n["number"] for n in nodes] or [None])[0]
 
 
+def body_edits(number):
+    """Edits of a pull request's description: who and when (the description's own history)."""
+    owner, name = REPO.split("/")
+    q = """query($o:String!,$n:String!,$i:Int!){repository(owner:$o,name:$n){pullRequest(number:$i){
+           userContentEdits(first:20){nodes{editedAt editor{login}}}}}}"""
+    res = call("/graphql", {"query": q, "variables": {"o": owner, "n": name, "i": number}})
+    return [{"at": e["editedAt"], "by": (e["editor"] or {}).get("login")}
+            for e in res["data"]["repository"]["pullRequest"]["userContentEdits"]["nodes"]]
+
+
 def t(stamp):
     return datetime.fromisoformat(stamp.replace("Z", "+00:00")) if stamp else None
 
@@ -110,7 +120,8 @@ def sub_issue(n):
         "commits": len(commits), "merge_commits": merges_in,
         "reviews": reviews, "line_comments": line_comments, "asks": asks,
         "checks": sorted({(c["name"], c["conclusion"] or c["status"]) for c in checks}),
-        "handoff": handoff(pr["body"], n), "url": pr["html_url"]}
+        "handoff": handoff(pr["body"], n), "url": pr["html_url"],
+        "edited_after_merge": [e for e in body_edits(pr_number) if pr["merged_at"] and e["at"] > pr["merged_at"]]}
     return rec
 
 
@@ -163,7 +174,8 @@ def markdown(r):
             out.append(f"| #{s['number']} {s['title']} | none | - | - | - | - | {s['state']} |")
             continue
         h = p["handoff"]
-        note = "yes" if h["present"] else "**missing**"
+        late = p.get("edited_after_merge")
+        note = ("yes" if not late else f"added after the merge by {late[-1]['by']}") if h["present"] else "**missing**"
         approved = ", ".join(sorted({v["by"] for v in p["reviews"] if v["state"] == "approved"})) or "-"
         merged = f"{hm(p['merged_at'])} by {p['merged_by']} ({p['merge_commit']})" if p["merged_at"] else "open"
         out.append(f"| #{s['number']} {s['title']} | [#{p['number']}]({p['url']}) | {len(p['sessions'])} | {note} | "
@@ -184,7 +196,10 @@ def markdown(r):
             continue
         h = p["handoff"]
         tests = ", ".join(f"`{x}`" for x in h["tests_named"]) or "none"
+        late = p.get("edited_after_merge")
         mark = "Handoff note present" if h["present"] else "**Handoff note missing**"
+        if h["present"] and late:
+            mark += f", added after the merge by {late[-1]['by']} at {hm(late[-1]['at'])}"
         out.append(f"- #{s['number']} → #{p['number']}: {mark}. Plan linked: {'yes' if h['plan_linked'] else 'no'}. "
                    f"Tests named: {tests}.")
     out += ["", "## Decisions", "", "Every decision a person wrote down on the epic's pull requests, in order.", ""]
@@ -217,6 +232,8 @@ def markdown(r):
         for v in p["reviews"]:
             state = "review comment" if v["state"] == "commented" else v["state"].replace("_", " ")
             events.append((v["at"], f"#{p['number']} {state} by {v['by']}"))
+        for e in p.get("edited_after_merge", []):
+            events.append((e["at"], f"#{p['number']} description edited after the merge by {e['by']}"))
         for m in p["merge_commits"]:
             events.append((m["at"], f"#{p['number']} conflict with main resolved by {m['by']} ({m['sha']})"))
         if p["merged_at"]:
