@@ -56,6 +56,8 @@ def test_local_datetime_preserves_chisinau_nonexistent_time(monkeypatch):
 
 
 def test_business_hours():
+    assert not timeutil.is_business_hours(timeutil.local_datetime(2026, 10, 13, 8, 59))
     assert timeutil.is_business_hours(timeutil.local_datetime(2026, 10, 13, 9, 0))
+    assert timeutil.is_business_hours(timeutil.local_datetime(2026, 10, 13, 17, 59))
     assert not timeutil.is_business_hours(timeutil.local_datetime(2026, 10, 13, 18, 0))
     assert not timeutil.is_business_hours(timeutil.local_datetime(2026, 10, 17, 12, 0))
