@@ -23,6 +23,15 @@ class Service(Base):
     customer_facing: Mapped[bool] = mapped_column(Boolean, default=False)
 
 
+class AlertSubscription(Base):
+    __tablename__ = "alert_subscriptions"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    engineer: Mapped[str] = mapped_column(String(80))
+    services: Mapped[list[str]] = mapped_column(JSON, default=list)
+    min_priority: Mapped[str] = mapped_column(String(2))
+
+
 class Incident(Base):
     __tablename__ = "incidents"
 
