@@ -5,6 +5,7 @@
 A customer-facing incident opened at night was assigned a lower priority than the same incident opened during the
 day, contrary to the documented rule that the customer-facing uplift applies at any hour.
 ([Issue #12](https://github.com/termidy/incidentdesk-rehearsal/issues/12))
+Gap: the available decision history does not explain the original business rationale for the any-hour rule.
 
 ## Decision
 

@@ -91,7 +91,14 @@ scripts/test.sh
 Success: pytest reports a passing summary twice, once in UTC and once in Asia/Singapore. If the summary includes
 database tests skipped because the URL is unset, start the disposable database, set the URL and rerun. If tests fail,
 use the failure details printed by pytest; Gap: the repository does not specify an on-call escalation procedure for
-test failures. Seeding must be repeated after database tests if demo data is needed again.
+test failures. To restore the demo data after database tests, **only on the disposable local database**, run:
+
+```bash
+incidentdesk seed --reset
+```
+
+This drops every table before loading the demo data. Success: it prints JSON with `services` and `incidents` counts.
+If it fails to connect, repeat the database startup and URL commands above.
 
 ## List SLA breaches
 
